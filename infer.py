@@ -12,7 +12,7 @@ model = init_detector(config, ckpt, device=torch.device("cuda", 0))
 model.CLASSES = pd.read_csv('./data/checkpoints/challenge2019/cls-label-description.csv', header=None).sort_values(2)[1].tolist()
 
 import glob
-files = glob.glob(sys.argv[1])
+files = sorted(glob.glob(sys.argv[1]))
 out = sys.argv[2] if sys.argv[2:] else 'result.pkl'
 
 import pickle
@@ -22,12 +22,17 @@ if os.path.exists(out):
 else:
     all_res={}
 
-for f in files:
-    print(f)
-    # out_file = "/".join(["result"] + f.split('/')[-2:])
-    #if os.path.exists(out_file):
-    #    print('skip')
-    #    continue
+def save():
+    with open(out, 'wb') as f:
+        pickle.dump(all_res, f)
+    print('save to', out)
+
+
+for i, f in enumerate(files):
+    print(i, f)
+    if f in all_res:
+        print('skip')
+        continue
     img = mmcv.imread(f)
     result = inference_detector(model, img)
 
@@ -35,6 +40,7 @@ for f in files:
     #img = mmcv.imrescale(img, 0.8)
     #mmcv.imwrite(img, out_file, auto_mkdir=True)
     all_res[f] = result
+    if (i+1) % 10000 == 0:
+        save()
 
-with open('result.pkl', 'wb') as f:
-    pickle.dump(all_res, f)
+save()
