@@ -14,5 +14,5 @@ print('time cost:', time.time()-start)
 
 import pandas as pd
 model.CLASSES = pd.read_csv('./data/checkpoints/challenge2019/cls-label-description.csv', header=None).sort_values(2)[1].tolist()
-show_result(img, result, model.CLASSES, score_thr=0.5, show=False, out_file="test2.jpg")
+#show_result(img, result, model.CLASSES, score_thr=0.5, show=False, out_file="test2.jpg")
 

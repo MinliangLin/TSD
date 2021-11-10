@@ -2,6 +2,7 @@ import mmcv
 import torch
 import sys
 import os
+import joblib
 import pandas as pd
 
 from mmdet.apis import inference_detector, init_detector, show_result
@@ -15,16 +16,13 @@ import glob
 files = sorted(glob.glob(sys.argv[1]))
 out = sys.argv[2] if sys.argv[2:] else 'result.pkl'
 
-import pickle
 if os.path.exists(out):
-    with open(out, 'rb') as f:
-        all_res = pickle.load(f)
+    all_res = joblib.load(out)
 else:
     all_res={}
 
 def save():
-    with open(out, 'wb') as f:
-        pickle.dump(all_res, f)
+    joblib.dump(all_res, out)
     print('save to', out)
 
 
@@ -35,7 +33,6 @@ for i, f in enumerate(files):
         continue
     img = mmcv.imread(f)
     result = inference_detector(model, img)
-
     #img = show_result(img, result, model.CLASSES, score_thr=0.3, show=False)
     #img = mmcv.imrescale(img, 0.8)
     #mmcv.imwrite(img, out_file, auto_mkdir=True)
@@ -44,3 +41,4 @@ for i, f in enumerate(files):
         save()
 
 save()
+
